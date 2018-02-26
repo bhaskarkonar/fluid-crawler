@@ -8,6 +8,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -26,6 +28,8 @@ import com.ibm.fluid.crawler.util.Utility;
  */
 @Component
 public class KafkaMessageGenerator {
+	
+	Logger logger=LoggerFactory.getLogger(KafkaMessageGenerator.class);
 
 	@Value("${app.crawler.output.kafka.application.id}")
 	private String appId;
@@ -54,9 +58,8 @@ public class KafkaMessageGenerator {
 		ContentSource contentSource = new ContentSource();
 		contentSource.setFileName((String) taskResult.getDataAsKeyValueList().get(Constants.FILE_NAME));
 		contentSource.setContentUrl((String) taskResult.getDataAsKeyValueList().get(Constants.FILE_PATH));
+		contentSource.setContentBase64((String) taskResult.getDataAsKeyValueList().get(Constants.FILE_CONTENT));
 		kafkaMsg.getMetaInfo().getCrawler().setContentSource(contentSource);
-
-		System.out.println(Utility.generateJSONMessage(kafkaMsg));
 
 		DateFormat dateformat = new SimpleDateFormat(KafkaConstants.KAFKA_DATA_DATE_FORMAT);
 		dateformat.setTimeZone(TimeZone.getTimeZone(KafkaConstants.KAFKA_DATA_TIME_ZONE));
@@ -72,7 +75,7 @@ public class KafkaMessageGenerator {
 		String crawlSessionID = String.valueOf(System.currentTimeMillis());
 		kafkaMsg.getMetaInfo().getCrawler().setSessionID(crawlSessionID);
 
-		// kafkaMsg.setSessionID(prop.getProperty(CrawlerConstants.CRAWL_SESSION_ID));
+		logger.debug("Kafka message generated:"+Utility.generateJSONMessage(kafkaMsg));
 		return kafkaMsg;
 	}
 

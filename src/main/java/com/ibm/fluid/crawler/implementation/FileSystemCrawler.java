@@ -53,7 +53,6 @@ public class FileSystemCrawler extends AbstractCrawlerJob {
 		}
 		String inputFilePattern = fileCrawlConfig.get(Constants.FILESYSTEM_REGEX_PATERN);
 		FileFilter isFileFilter = (File file) -> {
-			System.out.println("Modifed time:" + file.lastModified());
 			return file.isFile() && file.getName().matches(inputFilePattern);
 		};
 

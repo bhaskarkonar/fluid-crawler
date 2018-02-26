@@ -5,11 +5,14 @@ package com.ibm.fluid.crawler.implementation.local;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
+import org.apache.kafka.clients.producer.RecordMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
@@ -95,7 +98,7 @@ public class CrawlManager implements ApplicationContextAware {
 	@EventListener
 	public void onEvent(TaskCompletedEvent event) {
 		logger.info("Task Id completed: " + event.getTaskId());
-		logger.info("Task completed with data:" + event.getTaskResult().getData());
+		logger.trace("Task completed with data:" + event.getTaskResult().getData());
 		if (null == event.getTaskResult()
 				|| null == event.getTaskResult().getDataAsKeyValueList().get(Constants.FILE_PATH)) {
 			logger.error("Failed to execute task:" + event.getTaskId());
@@ -103,8 +106,13 @@ public class CrawlManager implements ApplicationContextAware {
 		}
 		try {
 			KafkaMessage kafkaMsg = kafkaMsgGen.generateMessage(event.getTaskResult());
-			kafkaManager.sendMessage(topic, Utility.generateJSONMessage(kafkaMsg),
+			Future<RecordMetadata> kafkaFuture = kafkaManager.sendMessage(topic, Utility.generateJSONMessage(kafkaMsg),
 					Utility.generateKafkaMessageID(kafkaMsg), applicationId);
+			try {
+				kafkaFuture.get();
+			} catch (InterruptedException | ExecutionException e) {
+				logger.error("Error while sending request to Kafka",e);
+			}
 		} catch (CrawlerGenericException e) {
 			logger.error(e.getMessage(), e);
 		}

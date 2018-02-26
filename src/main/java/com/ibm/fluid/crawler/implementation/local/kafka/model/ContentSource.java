@@ -2,40 +2,27 @@ package com.ibm.fluid.crawler.implementation.local.kafka.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonPropertyOrder({ "EDMS", "DOCSEARCH" })
 
 public class ContentSource {
 
-	@JsonProperty("EDMS")
-	private String eDMS;
-	@JsonProperty("DOCSEARCH")
-	private String dOCSEARCH;
+	@JsonProperty("contentBase64")
+	private String contentBase64;
 	@JsonProperty("fileName")
 	private String fileName;
 	@JsonProperty("contentUrl")
 	private String contentUrl;
 
-	@JsonProperty("EDMS")
-	public String getEDMS() {
-		return eDMS;
+
+	@JsonProperty("contentBase64")
+	public String getContentBase64() {
+		return contentBase64;
 	}
 
-	@JsonProperty("EDMS")
-	public void setEDMS(String eDMS) {
-		this.eDMS = eDMS;
-	}
-
-	@JsonProperty("DOCSEARCH")
-	public String getDOCSEARCH() {
-		return dOCSEARCH;
-	}
-
-	@JsonProperty("DOCSEARCH")
-	public void setDOCSEARCH(String dOCSEARCH) {
-		this.dOCSEARCH = dOCSEARCH;
+	@JsonProperty("contentBase64")
+	public void setContentBase64(String dOCSEARCH) {
+		this.contentBase64 = dOCSEARCH;
 	}
 
 	@JsonProperty("fileName")

@@ -4,10 +4,12 @@
 package com.ibm.fluid.crawler.implementation.local.kafka;
 
 import java.util.Properties;
+import java.util.concurrent.Future;
 
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.clients.producer.RecordMetadata;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -18,7 +20,6 @@ import com.ibm.fluid.crawler.config.KafkaConstants;
  */
 @Component
 public class KafkaManager {
-	private Producer<String, String> producer = null;
 	private Properties props;
 
 	@Value("${app.crawler.output.kafka.bootstrap.servers}")
@@ -48,14 +49,15 @@ public class KafkaManager {
 	@Value("${app.crawler.output.kafka.value.serializer}")
 	private String valueSerializer;
 
-	public void sendMessage(String topic, String message, String id, String applicationID) {
-		getProducer().send(new ProducerRecord<String, String>(topic, id, message),
+	public Future<RecordMetadata> sendMessage(String topic, String message, String id, String applicationID) {
+		Future<RecordMetadata> kafkaFuture = getProducer().send(new ProducerRecord<String, String>(topic, id, message),
 				new KafkaCallback(id, applicationID));
 		;
-		// producer.send(arg0)
+		return kafkaFuture;
 	}
 
 	private Producer<String, String> getProducer() {
+
 		props = new Properties();
 		props.put(KafkaConstants.KAFKA_PROPERTY_BOOTSTRAP_SERVERS, bootstrapServer);
 		props.put(KafkaConstants.KAFKA_PROPERTY_ACKS, acks);
@@ -67,7 +69,7 @@ public class KafkaManager {
 		props.put(KafkaConstants.KAFKA_PROPERTY_VALUE_SERIALIZER, valueSerializer);
 		props.put(KafkaConstants.KAFKA_PROPERTY_MAX_REQUEST_SIZE, maxRequestSize);
 
-		return producer = new KafkaProducer<>(props);
+		return new KafkaProducer<>(props);
 	}
 
 }

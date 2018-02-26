@@ -2,6 +2,7 @@ package com.ibm.fluid.crawler.implementation;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -52,15 +53,16 @@ public class FluidCrawlerEngine implements FluidCrawler {
 
 	@Override
 	public void start() {
-		
+		List<Callable<TaskResult>> callableTasks = new ArrayList<>();
 		for(CrawlerJob j:jobList){
 			
 			while(j.hasMoreTasks()){
 				
 				List<CrawlerTask> taskList=j.getTasks();
+				
 
 				for(CrawlerTask t:taskList){
-					executor.submit(()->{
+					callableTasks.add(()->{
 						TaskResult tr=null;
 						try{
 							tr=t.crawl();	
@@ -70,11 +72,26 @@ public class FluidCrawlerEngine implements FluidCrawler {
 						return tr;
 					});
 					
-					
-				}				
+				}
 			}
 			
+			try {
+				executor.awaitTermination(10, TimeUnit.SECONDS);
+			} catch (InterruptedException e) {
+				LOGGER.error("Awaiting for threads to complete interupted",e);
+			}
+
+			
 		}
+		
+		try {
+			LOGGER.info("Started set");
+			executor.invokeAll(callableTasks);
+			LOGGER.info("Completed set");
+		} catch (InterruptedException e) {
+			LOGGER.error("Error occured while executing threads",e);
+		}
+
 
 	}
 	

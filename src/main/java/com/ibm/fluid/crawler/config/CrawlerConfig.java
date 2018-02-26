@@ -17,7 +17,7 @@ import com.ibm.fluid.crawler.implementation.local.CrawlManager;
 @Import(FluidConfig.class)
 @PropertySource("classpath:application.properties")
 @PropertySource(value = "file:${CONFIG_DIR}/${CONFIG_FILENAME}", ignoreResourceNotFound = true)
-@PropertySource(value = "file:${CLI_CONFIG_FILE}")
+@PropertySource(value = "file:${CLI_CONFIG_FILE}", ignoreResourceNotFound = true)
 
 @Configuration
 @ComponentScan(value = { "com.ibm.fluid.crawler.implementation" })

@@ -5,7 +5,7 @@
 
 	<groupId>com.ibm.fluid.crawler.engine</groupId>
 	<artifactId>ire-crawler</artifactId>
-	<version>0.0.2</version>
+	<version>0.0.1</version>
 	<packaging>jar</packaging>
 
 	<name>ire-crawler</name>
@@ -123,7 +123,7 @@
 							<outputDirectory>${project.build.directory}/lib</outputDirectory>
 							<overWriteReleases>false</overWriteReleases>
 							<overWriteSnapshots>true</overWriteSnapshots>
-							<excludeTransitive>true</excludeTransitive>
+							<excludeTransitive>false</excludeTransitive>
 						</configuration>
 					</execution>
 				</executions>
