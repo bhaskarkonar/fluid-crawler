@@ -4,11 +4,9 @@
  */
 package com.ibm.fluid.crawler.implementation.local.kafka;
 
-import java.util.Properties;
 import java.util.concurrent.Future;
 
 import org.apache.kafka.clients.producer.KafkaProducer;
-import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
 import org.slf4j.Logger;
@@ -17,8 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import com.ibm.fluid.crawler.config.KafkaConstants;
-
 /**
  * @author BHASKARKONAR
  */
@@ -26,7 +22,6 @@ import com.ibm.fluid.crawler.config.KafkaConstants;
 public class KafkaManager {
 	@Autowired
 	private KafkaProducer<String,String> producer;
-	private Properties props;
 	private Logger logger=LoggerFactory.getLogger(KafkaManager.class);
 
 	@Value("${app.crawler.output.kafka.bootstrap.servers}")
@@ -64,24 +59,5 @@ public class KafkaManager {
 		return kafkaFuture;
 	}
 
-	private Producer<String, String> getProducer() {
-
-		if(null == producer) {
-			props = new Properties();
-			props.put(KafkaConstants.KAFKA_PROPERTY_BOOTSTRAP_SERVERS, bootstrapServer);
-			props.put(KafkaConstants.KAFKA_PROPERTY_ACKS, acks);
-			props.put(KafkaConstants.KAFKA_PROPERTY_RETRIES, priorityRetries);
-			props.put(KafkaConstants.KAFKA_PROPERTY_BATCH_SIZE, batchSize);
-			props.put(KafkaConstants.KAFKA_PROPERTY_LINGER_MS, lingerMs);
-			props.put(KafkaConstants.KAFKA_PROPERTY_BUFFER_MEMORY, bufferMemory);
-			props.put(KafkaConstants.KAFKA_PROPERTY_KEY_SERIALIZER, keySerializer);
-			props.put(KafkaConstants.KAFKA_PROPERTY_VALUE_SERIALIZER, valueSerializer);
-			props.put(KafkaConstants.KAFKA_PROPERTY_MAX_REQUEST_SIZE, maxRequestSize);
-			producer=new KafkaProducer<>(props);
-		}
-
-
-		return producer;
-	}
 
 }
