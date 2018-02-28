@@ -44,6 +44,7 @@ public class FluidConfig {
 		return new FileSystemCrawlerTask(taskId, taskConfig);
 	}
 
+	@Scope("singleton")
 	@Bean(name = "crawlerEngine")
 	public FluidCrawler getInsightReCrawler() {
 		return new FluidCrawlerEngine();

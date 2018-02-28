@@ -53,19 +53,21 @@ public class FluidCrawlerEngine implements FluidCrawler {
 
 	@Override
 	public void start() {
+		LOGGER.info("Started crawler with no. of jobs:"+jobList.size());
 		List<Callable<TaskResult>> callableTasks = new ArrayList<>();
 		for(CrawlerJob j:jobList){
 			
 			while(j.hasMoreTasks()){
 				
 				List<CrawlerTask> taskList=j.getTasks();
+				LOGGER.info("No. of tasks created: "+taskList.size());
 				
 
 				for(CrawlerTask t:taskList){
 					callableTasks.add(()->{
 						TaskResult tr=null;
 						try{
-							tr=t.crawl();	
+							tr=t.crawl();
 						}catch(Exception e){
 							LOGGER.error("Task failed with id:"+t.getTaskId(),e);
 						}

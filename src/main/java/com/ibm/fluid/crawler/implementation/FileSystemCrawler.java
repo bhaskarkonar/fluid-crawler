@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -48,7 +48,6 @@ public class FileSystemCrawler extends AbstractCrawlerJob {
 			} catch (IOException e) {
 				LOGGER.error("Error parsing directory:" + Paths.get(this.fileCrawlConfig.get(Constants.DIR_NAME)), e);
 			}
-			listOfDirectories.add(this.fileCrawlConfig.get(Constants.DIR_NAME));
 
 		}
 		String inputFilePattern = fileCrawlConfig.get(Constants.FILESYSTEM_REGEX_PATERN);
@@ -56,6 +55,7 @@ public class FileSystemCrawler extends AbstractCrawlerJob {
 			return file.isFile() && file.getName().matches(inputFilePattern);
 		};
 
+		LOGGER.info("List of directory:"+listOfDirectories);
 		File dir = new File(this.listOfDirectories.get(0));
 		this.listOfDirectories.remove(0);
 
@@ -68,14 +68,19 @@ public class FileSystemCrawler extends AbstractCrawlerJob {
 			allTasksRetrived();
 		}
 
-		return Arrays.stream(files).map(f -> {
-			Map<String, String> taskConfig = new HashMap<>();
-			taskConfig.put(Constants.FILE_NAME, f.toString());
-			CrawlerTask fsTask = (CrawlerTask) getApplicationContext().getBean(Constants.FILESYSTEM_TASK_BEAN,
-					Double.toString(Math.random()), taskConfig);
-			fsTask.setJobId(getJobId());
-			return fsTask;
-		}).collect(Collectors.toList());
+		List<CrawlerTask> taskList=new ArrayList<>();
+		for(File f:files) {
+			
+				Map<String, String> taskConfig = new HashMap<>();
+				taskConfig.put(Constants.FILE_NAME, f.toString());
+				CrawlerTask fsTask = (CrawlerTask) getApplicationContext().getBean(Constants.FILESYSTEM_TASK_BEAN,
+						Double.toString(Math.random()), taskConfig);
+				fsTask.setJobId(getJobId());
+				taskList.add(fsTask);
+			
+		}
+		LOGGER.info("No. of tasks created:"+taskList.size());
+		return taskList;
 	}
 
 }

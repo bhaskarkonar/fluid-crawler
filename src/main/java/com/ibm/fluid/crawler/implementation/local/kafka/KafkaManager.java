@@ -1,4 +1,5 @@
 /**
+
  * 
  */
 package com.ibm.fluid.crawler.implementation.local.kafka;
@@ -10,6 +11,9 @@ import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -20,7 +24,10 @@ import com.ibm.fluid.crawler.config.KafkaConstants;
  */
 @Component
 public class KafkaManager {
+	@Autowired
+	private KafkaProducer<String,String> producer;
 	private Properties props;
+	private Logger logger=LoggerFactory.getLogger(KafkaManager.class);
 
 	@Value("${app.crawler.output.kafka.bootstrap.servers}")
 	private String bootstrapServer;
@@ -50,7 +57,8 @@ public class KafkaManager {
 	private String valueSerializer;
 
 	public Future<RecordMetadata> sendMessage(String topic, String message, String id, String applicationID) {
-		Future<RecordMetadata> kafkaFuture = getProducer().send(new ProducerRecord<String, String>(topic, id, message),
+		logger.info("Posting message with id:"+id);
+		Future<RecordMetadata> kafkaFuture = producer.send(new ProducerRecord<String, String>(topic, id, message),
 				new KafkaCallback(id, applicationID));
 		;
 		return kafkaFuture;
@@ -58,18 +66,22 @@ public class KafkaManager {
 
 	private Producer<String, String> getProducer() {
 
-		props = new Properties();
-		props.put(KafkaConstants.KAFKA_PROPERTY_BOOTSTRAP_SERVERS, bootstrapServer);
-		props.put(KafkaConstants.KAFKA_PROPERTY_ACKS, acks);
-		props.put(KafkaConstants.KAFKA_PROPERTY_RETRIES, priorityRetries);
-		props.put(KafkaConstants.KAFKA_PROPERTY_BATCH_SIZE, batchSize);
-		props.put(KafkaConstants.KAFKA_PROPERTY_LINGER_MS, lingerMs);
-		props.put(KafkaConstants.KAFKA_PROPERTY_BUFFER_MEMORY, bufferMemory);
-		props.put(KafkaConstants.KAFKA_PROPERTY_KEY_SERIALIZER, keySerializer);
-		props.put(KafkaConstants.KAFKA_PROPERTY_VALUE_SERIALIZER, valueSerializer);
-		props.put(KafkaConstants.KAFKA_PROPERTY_MAX_REQUEST_SIZE, maxRequestSize);
+		if(null == producer) {
+			props = new Properties();
+			props.put(KafkaConstants.KAFKA_PROPERTY_BOOTSTRAP_SERVERS, bootstrapServer);
+			props.put(KafkaConstants.KAFKA_PROPERTY_ACKS, acks);
+			props.put(KafkaConstants.KAFKA_PROPERTY_RETRIES, priorityRetries);
+			props.put(KafkaConstants.KAFKA_PROPERTY_BATCH_SIZE, batchSize);
+			props.put(KafkaConstants.KAFKA_PROPERTY_LINGER_MS, lingerMs);
+			props.put(KafkaConstants.KAFKA_PROPERTY_BUFFER_MEMORY, bufferMemory);
+			props.put(KafkaConstants.KAFKA_PROPERTY_KEY_SERIALIZER, keySerializer);
+			props.put(KafkaConstants.KAFKA_PROPERTY_VALUE_SERIALIZER, valueSerializer);
+			props.put(KafkaConstants.KAFKA_PROPERTY_MAX_REQUEST_SIZE, maxRequestSize);
+			producer=new KafkaProducer<>(props);
+		}
 
-		return new KafkaProducer<>(props);
+
+		return producer;
 	}
 
 }

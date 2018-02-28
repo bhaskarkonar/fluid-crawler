@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.support.AbstractApplicationContext;
 
@@ -28,7 +29,7 @@ import com.ibm.fluid.crawler.implementation.local.CrawlManager;
  * 
  * @author BHASKARKONAR
  */
-//@SpringBootApplication
+@SpringBootApplication
 public class FluidCrawlerApplication implements ApplicationRunner {
 
 	Logger logger = LoggerFactory.getLogger(FluidCrawlerApplication.class);
@@ -80,6 +81,7 @@ public class FluidCrawlerApplication implements ApplicationRunner {
 			System.exit(1);
 		} else {
 			FluidCrawler crawler = (FluidCrawler) context.getBean("crawlerEngine");
+			logger.info("Instantiated crawler: "+crawler);
 			for (CrawlerJob cj : cm.getCrawlerList()) {
 				crawler.addJob(cj);
 			}

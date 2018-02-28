@@ -35,9 +35,11 @@ public class FileSystemCrawlerTask extends AbstractCrawlerTask {
 		File file = null;
 		Map<String, Object> data = new ConcurrentHashMap<>();
 		try {
+			
 			fileContent = new String(Base64.getEncoder()
 					.encode(Files.readAllBytes(Paths.get((String) taskConfig.get(Constants.FILE_NAME)))));
 			file = new File((String) taskConfig.get(Constants.FILE_NAME));
+			logger.info("Successfully crawled:"+(String) taskConfig.get(Constants.FILE_NAME));
 			data.put(Constants.FILE_NAME, file.getName());
 			data.put(Constants.FILE_PATH, file.getCanonicalFile().getCanonicalPath());
 			data.put(Constants.FILE_CONTENT, fileContent);
